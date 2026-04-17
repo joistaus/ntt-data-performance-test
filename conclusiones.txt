@@ -1,0 +1,25 @@
+CONCLUSIONES
+============
+
+La prueba de carga sobre el endpoint POST /auth/login de FakeStore API alcanzó
+una tasa máxima de 130 req/s con un tiempo de respuesta p(95) de 364 ms y una
+tasa de error de 0.00%.
+
+El threshold de p(95) < 1500 ms resultó en PASS.
+El threshold de error rate < 3% resultó en PASS.
+
+k6 demostró ser una herramienta muy útil para este tipo de pruebas gracias a su
+flexibilidad, los scripts son código JavaScript puro, lo que permite construir
+escenarios complejos y reutilizables. Además, al ejecutarse desde línea de
+comandos, se integra fácilmente en pipelines de CI/CD, permitiendo validar el
+rendimiento de forma automatizada en cada ciclo de entrega.
+
+
+MEJORAS FUTURAS
+---------------
+
+1. Extender la prueba con un período de carga sostenida (soak test) para
+   detectar degradación de rendimiento en el tiempo.
+
+2. Parametrizar el volumen de carga desde línea de comandos para facilitar
+   la ejecución en distintos entornos.

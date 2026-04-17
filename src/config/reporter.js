@@ -2,6 +2,6 @@ import { htmlReport } from 'https://raw.githubusercontent.com/benc-uk/k6-reporte
 
 export function handleSummary(data) {
   return {
-    'reports/summary.html': htmlReport(data),
+    'summary.html': htmlReport(data),
   };
 }

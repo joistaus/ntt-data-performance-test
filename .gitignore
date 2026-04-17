@@ -1,7 +1,6 @@
-reports/
 node_modules/
 summary.json
+summary.html
 results/
 *.json
 *.xml
-*.html
