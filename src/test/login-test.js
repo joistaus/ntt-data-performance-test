@@ -1,25 +1,35 @@
 import http from 'k6/http';
-import { check, sleep } from 'k6';
-import { SharedArray } from 'k6/data';
 import { BASE_URL, LOGIN_ENDPOINT, CONTENT_TYPE, P95_THRESHOLD_MS, ERROR_RATE_THRESHOLD } from '../config/constants.js';
+import { handleSummary } from '../config/reporter.js';
+import { users } from '../helpers/users.js';
+import { checkLoginResponse } from '../helpers/checks.js';
 
-const users = new SharedArray('users', function () {
-  return open('../data/users.csv')
-    .split('\n')
-    .slice(1)
-    .filter(line => line.trim() !== '')
-    .map(line => {
-      const [user, passwd] = line.split(',');
-      return { user: user.trim(), passwd: passwd.trim() };
-    });
-});
+export { handleSummary };
 
 export const options = {
-  stages: [
-    { duration: '30s', target: 30 },
-    { duration: '1m',  target: 30 },
-    { duration: '15s', target: 0  },
-  ],
+  scenarios: {
+    ramping_login: {
+      executor: 'ramping-arrival-rate',
+      startRate: 20,
+      timeUnit: '1s',
+      preAllocatedVUs: 100,
+      maxVUs: 200,
+      stages: [
+        { target: 20,  duration: '5s' },
+        { target: 30,  duration: '5s' },
+        { target: 40,  duration: '5s' },
+        { target: 50,  duration: '5s' },
+        { target: 60,  duration: '5s' },
+        { target: 70,  duration: '5s' },
+        { target: 80,  duration: '5s' },
+        { target: 90,  duration: '5s' },
+        { target: 100, duration: '5s' },
+        { target: 110, duration: '5s' },
+        { target: 120, duration: '5s' },
+        { target: 130, duration: '5s' },
+      ],
+    },
+  },
   thresholds: {
     http_req_duration: [`p(95)<${P95_THRESHOLD_MS}`],
     http_req_failed:   [`rate<${ERROR_RATE_THRESHOLD}`],
@@ -34,16 +44,5 @@ export default function () {
 
   const res = http.post(`${BASE_URL}${LOGIN_ENDPOINT}`, payload, { headers });
 
-  check(res, {
-    'status is 200':        (r) => r.status === 200,
-    'response has token':   (r) => {
-      try {
-        return JSON.parse(r.body).token !== undefined;
-      } catch {
-        return false;
-      }
-    },
-  });
-
-  sleep(1);
+  checkLoginResponse(res);
 }
